@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>블랙잭 룰 - IN'S OUT CASINO</title>
+  <title>블랙잭 설명서 - IN'S OUT CASINO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Noto+Sans+KR:wght@500;700;800&display=swap" rel="stylesheet">
@@ -147,20 +147,26 @@
       font-weight: 800;
     }
 
-    .warn-box {
-      background: rgba(255, 82, 82, 0.1);
-      border: 1px solid rgba(255, 82, 82, 0.3);
-      border-radius: 8px;
-      padding: 10px 12px;
+    /* 블랙잭 기본 룰 카드 내부 용어 설명 스타일 */
+    .term-box {
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 10px;
+      padding: 12px;
       margin-top: 10px;
-      font-size: 12.5px;
-      color: #ffcdd2;
-      line-height: 1.45;
+      border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .warn-box strong {
-      color: #ff5252;
+    .term-title {
+      font-size: 13.5px;
       font-weight: 800;
+      color: var(--neon-cyan);
+      margin-bottom: 4px;
+    }
+
+    .term-desc {
+      font-size: 12px;
+      color: #aeb5c2;
+      line-height: 1.45;
     }
   </style>
 </head>
@@ -173,7 +179,7 @@
     </a>
   </div>
 
-  <div class="page-title">🃏 블랙잭 공식 규정</div>
+  <div class="page-title">블랙잭 설명서</div>
   <div class="page-sub">인스아웃 카지노 전용 블랙잭 베팅 및 운영 가이드</div>
 
   <!-- 베팅 한도 카드 -->
@@ -201,9 +207,38 @@
       <li><strong>딜러 룰 (H17):</strong> 딜러는 소프트 17(Soft 17)에서 히트(Hit)를 진행합니다.</li>
       <li><strong>판수 제한:</strong> 원활한 회전율을 위해 <strong>최대 10판</strong>까지 플레이 가능합니다.</li>
     </ul>
+  </div>
 
-    <div class="warn-box">
-      ⚠️ <strong>시스템 안내:</strong> 딜러 진행 및 기록 관리는 <strong>프로그램으로 자동 관리</strong>될 예정입니다.
+  <!-- 블랙잭 기본 룰 설명 카드 -->
+  <div class="card">
+    <div class="card-title">📖 블랙잭 기본 룰 가이드</div>
+    <ul class="rule-list">
+      <li><strong>게임 목표:</strong> 카드 합이 <strong>21에 가깝거나 정확히 일치</strong>하면서 딜러의 합보다 높으면 승리합니다. (21을 초과하면 버스트로 즉시 패배)</li>
+      <li><strong>카드 숫자 계산:</strong> 
+        <br>• 2 ~ 10: 적힌 숫자 그대로 인정
+        <br>• J, Q, K: 모두 10으로 계산
+        <br>• A (에이스): 상황에 따라 1 또는 11로 유리하게 계산
+      </li>
+    </ul>
+
+    <div class="term-box">
+      <div class="term-title">Hit (히트)</div>
+      <div class="term-desc">카드를 한 장 더 받습니다.</div>
+    </div>
+
+    <div class="term-box">
+      <div class="term-title">Stand (스탠드)</div>
+      <div class="term-desc">현재 카드로 만족하며 더 이상 받지 않고 턴을 종료합니다.</div>
+    </div>
+
+    <div class="term-box">
+      <div class="term-title">Double Down (더블 다운)</div>
+      <div class="term-desc">초기 베팅을 두 배로 늘리는 대신, <strong>정확히 딱 1장의 카드만 더 받고</strong> 턴을 종료합니다.</div>
+    </div>
+
+    <div class="term-box">
+      <div class="term-title">Split (스플릿)</div>
+      <div class="term-desc">처음 받은 두 장의 카드가 <strong>같은 숫자(또는 림)</strong>일 때, 각각 별개의 핸드로 나누어 독립적으로 게임을 진행합니다.</div>
     </div>
   </div>
 
