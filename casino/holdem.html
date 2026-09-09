@@ -2,11 +2,11 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>홀덤 룰 - IN'S OUT CASINO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Noto+Sans+KR:wght@500;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-dark: #0b0d13;
@@ -19,13 +19,13 @@
       --accent-red: #ff5252;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
     body {
       font-family: 'Noto Sans KR', sans-serif;
       background-color: var(--bg-dark);
       color: var(--text-main);
-      padding: 0 16px 40px 16px;
+      padding: 0 16px calc(40px + env(safe-area-inset-bottom));
       line-height: 1.5;
     }
 
@@ -34,7 +34,7 @@
       top: 0;
       background: rgba(11, 13, 19, 0.95);
       backdrop-filter: blur(10px);
-      padding: 14px 0;
+      padding: calc(14px + env(safe-area-inset-top)) 0 14px 0;
       display: flex;
       align-items: center;
       border-bottom: 1px solid rgba(212, 175, 55, 0.2);
@@ -165,12 +165,11 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 12px;
-      text-align: center;
-      white-space: nowrap;
+      text-align: left;
     }
 
     th, td {
-      padding: 9px 8px;
+      padding: 10px 10px;
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
@@ -178,6 +177,16 @@
       background: #191d2b;
       color: var(--gold-primary);
       font-weight: 700;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    td.stage-name {
+      text-align: center;
+      font-weight: 800;
+      color: #fff;
+      white-space: nowrap;
+      width: 75px;
     }
 
     tbody tr:nth-child(even) {
@@ -192,6 +201,7 @@
       margin-top: 10px;
       font-size: 12.5px;
       color: #ffcdd2;
+      line-height: 1.45;
     }
 
     .action-chips {
@@ -211,22 +221,28 @@
       color: #fff;
     }
 
-    /* 족보 목록 스타일 */
+    /* 족보 목록 & 미니 카드 렌더링 스타일 */
     .hand-rank-list {
       display: flex;
       flex-direction: column;
-      gap: 7px;
-      margin-top: 8px;
+      gap: 10px;
+      margin-top: 10px;
     }
 
     .hand-item {
       display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 10px 12px;
+      border-radius: 10px;
+    }
+
+    .hand-top {
+      display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      padding: 8px 12px;
-      border-radius: 8px;
     }
 
     .hand-left {
@@ -236,22 +252,57 @@
     }
 
     .hand-rank-num {
-      font-size: 11px;
-      font-weight: 800;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 900;
       color: var(--gold-primary);
       width: 18px;
     }
 
     .hand-name {
-      font-size: 13px;
-      font-weight: 700;
+      font-size: 13.5px;
+      font-weight: 800;
       color: #fff;
     }
 
     .hand-desc {
       font-size: 11.5px;
       color: #9ba3b4;
-      text-align: right;
+    }
+
+    /* 카드 5장 시각화 레이아웃 */
+    .mini-card-row {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .mini-card {
+      width: 28px;
+      height: 38px;
+      background: #fdfdfd;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: 11px;
+      line-height: 1.1;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      border: 1px solid rgba(0,0,0,0.15);
+      user-select: none;
+    }
+
+    /* 스페이드/클로버(블랙), 하트/다이아(레드) */
+    .mini-card.black { color: #151515; }
+    .mini-card.red { color: #d32f2f; }
+    .mini-card.gray { background: #e0e3eb; color: #555c68; } /* 조커/하이카드 표시용 */
+    
+    .mini-card .suit {
+      font-size: 9px;
+      line-height: 1;
     }
   </style>
 </head>
@@ -267,171 +318,270 @@
   <div class="page-title">♠️ 텍사스 홀덤 공식 규정</div>
   <div class="page-sub">인스아웃 카지노 전용 홀덤 배팅 및 정산 가이드</div>
 
-  <!-- 기본 블라인드 -->
+  <!-- 기본 블라인드 및 배팅 액션 -->
   <div class="card highlight">
-    <div class="card-title">📌 기본 블라인드</div>
+    <div class="card-title">📌 기본 블라인드 & 액션</div>
     <div class="blind-box">
       <div class="blind-item">
         <div class="blind-label">스몰 블라인드 (SB)</div>
-        <div class="blind-val">5 칩</div>
+        <div class="blind-val">10 칩</div>
       </div>
       <div class="blind-item">
         <div class="blind-label">빅 블라인드 (BB)</div>
-        <div class="blind-val">10 칩</div>
+        <div class="blind-val">20 칩</div>
       </div>
     </div>
     <ul class="rule-list">
-      <li><strong>배팅 액션:</strong> Check, Call, Raise, Fold 진행</li>
+      <li><strong>배팅 방법:</strong> Check, Call, Raise, Fold 진행</li>
     </ul>
     <div class="action-chips">
-      <span class="chip-badge">Check</span>
-      <span class="chip-badge">Call</span>
-      <span class="chip-badge">Raise</span>
-      <span class="chip-badge">Fold</span>
+      <span class="chip-badge">Check (체크)</span>
+      <span class="chip-badge">Call (콜)</span>
+      <span class="chip-badge">Raise (레이즈)</span>
+      <span class="chip-badge">Fold (다이/폴드)</span>
     </div>
   </div>
 
-  <!-- 단계별 배팅 한도 및 올인 규칙 -->
+  <!-- 배팅 규칙 및 단계별 진행 설명 표 -->
   <div class="card">
-    <div class="card-title">💰 단계별 최대 배팅 한도 (Max)</div>
+    <div class="card-title">💰 배팅 한도 & 진행 단계 안내</div>
+    
     <div class="table-container">
       <table>
         <thead>
           <tr>
             <th>구분</th>
-            <th>기준</th>
-            <th>최대 배팅액</th>
+            <th>단계별 설명</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>프리플랍</strong></td>
-            <td>빅블라인드 2배</td>
-            <td style="color:var(--gold-primary); font-weight:800;">20 칩</td>
+            <td class="stage-name">프리플랍</td>
+            <td>각자 <strong>손패 2장</strong>을 받고 바닥 카드가 깔리기 전 첫 번째 배팅</td>
           </tr>
           <tr>
-            <td><strong>플랍</strong></td>
-            <td>빅블라인드 1배</td>
-            <td style="color:var(--gold-primary); font-weight:800;">10 칩</td>
+            <td class="stage-name">플랍</td>
+            <td>바닥에 <strong>공용 카드 3장</strong>이 처음 공개된 후 두 번째 배팅</td>
           </tr>
           <tr>
-            <td><strong>턴</strong></td>
-            <td>빅블라인드 1배</td>
-            <td style="color:var(--gold-primary); font-weight:800;">10 칩</td>
+            <td class="stage-name">턴</td>
+            <td>바닥에 <strong>공용 카드 1장</strong>이 추가 공개(총 4장)된 후 세 번째 배팅</td>
           </tr>
           <tr>
-            <td><strong>리버</strong></td>
-            <td>빅블라인드 2배</td>
-            <td style="color:var(--gold-primary); font-weight:800;">20 칩</td>
+            <td class="stage-name">리버</td>
+            <td>바닥에 <strong>마지막 공용 카드 1장</strong> 공개(총 5장) 후 최종 배팅</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <ul class="rule-list" style="margin-top: 10px;">
-      <li><strong>총 배팅 최대액:</strong> 1인당 한 판 최대 <strong>60칩</strong></li>
-      <li><strong>자유 배팅:</strong> 배팅 최대액(60칩) 내에서 자유롭게 배팅 가능</li>
-      <li><strong>올인(All-in) 처리:</strong> 누적 배팅액이 <strong>60칩에 도달하면 올인</strong> 상태로 간주되어 추가 배팅 없이 쇼다운까지 직행합니다.</li>
+    <!-- 2안 세부 배팅 규칙 -->
+    <ul class="rule-list" style="margin-top: 12px;">
+      <li><strong>자유 배팅:</strong> 한 판 최대 <strong>120칩</strong> 한도 내에서 자유롭게 배팅 가능합니다.</li>
+      <li><strong>올인(All-in) 처리:</strong> 누적 배팅액이 <strong>120칩에 도달하면 올인처럼 진행</strong>되어 추가 배팅 없이 마지막 쇼다운까지 직행합니다.</li>
     </ul>
 
     <div class="warn-box">
-      ⚠️ <strong>딜러 수수료:</strong> 승리 시 발생하는 <strong>수익률의 10% 차감</strong> (단, 1의 자리 잔돈은 버림 처리)
-    </div>
-  </div>
-
-  <!-- 홀덤 족보 순위표 -->
-  <div class="card">
-    <div class="card-title">🏆 홀덤 기본 패(족보) 순위</div>
-    <div class="hand-rank-list">
-      <div class="hand-item" style="border-color: rgba(245, 200, 66, 0.4);">
-        <div class="hand-left">
-          <span class="hand-rank-num">1</span>
-          <span class="hand-name" style="color: var(--gold-primary);">로얄 플러시</span>
-        </div>
-        <span class="hand-desc">같은 무늬 A, K, Q, J, 10</span>
-      </div>
-
-      <div class="hand-item">
-        <div class="hand-left">
-          <span class="hand-rank-num">2</span>
-          <span class="hand-name">스트레이트 플러시</span>
-        </div>
-        <span class="hand-desc">같은 무늬 연속된 숫자 5장</span>
-      </div>
-
-      <div class="hand-item">
-        <div class="hand-left">
-          <span class="hand-rank-num">3</span>
-          <span class="hand-name">포카드</span>
-        </div>
-        <span class="hand-desc">같은 숫자 4장</span>
-      </div>
-
-      <div class="hand-item">
-        <div class="hand-left">
-          <span class="hand-rank-num">4</span>
-          <span class="hand-name">풀하우스</span>
-        </div>
-        <span class="hand-desc">트리플(3장) + 원페어(2장)</span>
-      </div>
-
-      <div class="hand-item">
-        <div class="hand-left">
-          <span class="hand-rank-num">5</span>
-          <span class="hand-name">플러시</span>
-        </div>
-        <span class="hand-desc">숫자 상관없이 같은 무늬 5장</span>
-      </div>
-
-      <div class="hand-item">
-        <div class="hand-left">
-          <span class="hand-rank-num">6</span>
-          <span class="hand-name">스트레이트</span>
-        </div>
-        <span class="hand-desc">무늬 상관없이 연속된 숫자 5장</span>
-      </div>
-
-      <div class="hand-item">
-        <div class="hand-left">
-          <span class="hand-rank-num">7</span>
-          <span class="hand-name">트리플</span>
-        </div>
-        <span class="hand-desc">같은 숫자 3장</span>
-      </div>
-
-      <div class="hand-item">
-        <div class="hand-left">
-          <span class="hand-rank-num">8</span>
-          <span class="hand-name">투페어</span>
-        </div>
-        <span class="hand-desc">같은 숫자 2장씩 2쌍</span>
-      </div>
-
-      <div class="hand-item">
-        <div class="hand-left">
-          <span class="hand-rank-num">9</span>
-          <span class="hand-name">원페어</span>
-        </div>
-        <span class="hand-desc">같은 숫자 2장 1쌍</span>
-      </div>
-
-      <div class="hand-item">
-        <div class="hand-left">
-          <span class="hand-rank-num">10</span>
-          <span class="hand-name">하이카드</span>
-        </div>
-        <span class="hand-desc">족보 완성 실패 시 가장 높은 카드</span>
-      </div>
+      ⚠️ <strong>딜러 수수료:</strong> 승리 시 발생하는 <strong>수익금의 10% 차감</strong> (단, 5칩 이하 버림 처리)
     </div>
   </div>
 
   <!-- 참여 및 청산 규정 -->
   <div class="card special">
-    <div class="card-title">🔄 테이블 참여 및 청산</div>
+    <div class="card-title">🔄 테이블 참여 및 청산 규정</div>
     <ul class="rule-list">
-      <li><strong>참여 기준:</strong> <strong>200칩</strong> 보유 시 입장 및 참여 가능</li>
-      <li><strong>청산 규정:</strong> 게임 청산 후 타 게임으로 자유 이동 가능 (수익은 <strong>개별 지갑</strong>으로 이관 및 보관)</li>
+      <li><strong>참여 기준:</strong> 기본 <strong>200칩</strong> 보유 시 입장 및 참여 가능</li>
+      <li><strong>예외 규정:</strong> <strong>200칩 이하도 참여 가능</strong>하나, 입장 시 <strong>현재 보유한 칩까지만 올인 참여 가능</strong>합니다.</li>
+      <li><strong>청산 규정:</strong> 게임 청산 후 타 게임으로 이동 가능</li>
     </ul>
+  </div>
+
+  <!-- 홀덤 족보 순위표 (카드 예시 시각화 적용) -->
+  <div class="card">
+    <div class="card-title">🏆 홀덤 기본 패(족보) 순위</div>
+    <div class="hand-rank-list">
+
+      <!-- 1. 로얄 플러시 -->
+      <div class="hand-item" style="border-color: rgba(245, 200, 66, 0.45);">
+        <div class="hand-top">
+          <div class="hand-left">
+            <span class="hand-rank-num">1</span>
+            <span class="hand-name" style="color: var(--gold-primary);">로얄 플러시</span>
+          </div>
+          <span class="hand-desc">같은 무늬 A, K, Q, J, 10</span>
+        </div>
+        <div class="mini-card-row">
+          <div class="mini-card black"><span>A</span><span class="suit">♠</span></div>
+          <div class="mini-card black"><span>K</span><span class="suit">♠</span></div>
+          <div class="mini-card black"><span>Q</span><span class="suit">♠</span></div>
+          <div class="mini-card black"><span>J</span><span class="suit">♠</span></div>
+          <div class="mini-card black"><span>10</span><span class="suit">♠</span></div>
+        </div>
+      </div>
+
+      <!-- 2. 스트레이트 플러시 -->
+      <div class="hand-item">
+        <div class="hand-top">
+          <div class="hand-left">
+            <span class="hand-rank-num">2</span>
+            <span class="hand-name">스트레이트 플러시</span>
+          </div>
+          <span class="hand-desc">같은 무늬 연속된 숫자 5장</span>
+        </div>
+        <div class="mini-card-row">
+          <div class="mini-card red"><span>9</span><span class="suit">♦</span></div>
+          <div class="mini-card red"><span>8</span><span class="suit">♦</span></div>
+          <div class="mini-card red"><span>7</span><span class="suit">♦</span></div>
+          <div class="mini-card red"><span>6</span><span class="suit">♦</span></div>
+          <div class="mini-card red"><span>5</span><span class="suit">♦</span></div>
+        </div>
+      </div>
+
+      <!-- 3. 포카드 -->
+      <div class="hand-item">
+        <div class="hand-top">
+          <div class="hand-left">
+            <span class="hand-rank-num">3</span>
+            <span class="hand-name">포카드</span>
+          </div>
+          <span class="hand-desc">같은 숫자 4장</span>
+        </div>
+        <div class="mini-card-row">
+          <div class="mini-card black"><span>J</span><span class="suit">♠</span></div>
+          <div class="mini-card red"><span>J</span><span class="suit">♥</span></div>
+          <div class="mini-card red"><span>J</span><span class="suit">♦</span></div>
+          <div class="mini-card black"><span>J</span><span class="suit">♣</span></div>
+          <div class="mini-card gray"><span>3</span><span class="suit">♠</span></div>
+        </div>
+      </div>
+
+      <!-- 4. 풀하우스 -->
+      <div class="hand-item">
+        <div class="hand-top">
+          <div class="hand-left">
+            <span class="hand-rank-num">4</span>
+            <span class="hand-name">풀하우스</span>
+          </div>
+          <span class="hand-desc">트리플(3장) + 원페어(2장)</span>
+        </div>
+        <div class="mini-card-row">
+          <div class="mini-card black"><span>10</span><span class="suit">♠</span></div>
+          <div class="mini-card red"><span>10</span><span class="suit">♥</span></div>
+          <div class="mini-card red"><span>10</span><span class="suit">♦</span></div>
+          <div class="mini-card black"><span>4</span><span class="suit">♣</span></div>
+          <div class="mini-card red"><span>4</span><span class="suit">♥</span></div>
+        </div>
+      </div>
+
+      <!-- 5. 플러시 -->
+      <div class="hand-item">
+        <div class="hand-top">
+          <div class="hand-left">
+            <span class="hand-rank-num">5</span>
+            <span class="hand-name">플러시</span>
+          </div>
+          <span class="hand-desc">숫자 무관 같은 무늬 5장</span>
+        </div>
+        <div class="mini-card-row">
+          <div class="mini-card red"><span>K</span><span class="suit">♥</span></div>
+          <div class="mini-card red"><span>J</span><span class="suit">♥</span></div>
+          <div class="mini-card red"><span>8</span><span class="suit">♥</span></div>
+          <div class="mini-card red"><span>4</span><span class="suit">♥</span></div>
+          <div class="mini-card red"><span>2</span><span class="suit">♥</span></div>
+        </div>
+      </div>
+
+      <!-- 6. 스트레이트 -->
+      <div class="hand-item">
+        <div class="hand-top">
+          <div class="hand-left">
+            <span class="hand-rank-num">6</span>
+            <span class="hand-name">스트레이트</span>
+          </div>
+          <span class="hand-desc">무늬 무관 연속된 숫자 5장</span>
+        </div>
+        <div class="mini-card-row">
+          <div class="mini-card black"><span>8</span><span class="suit">♠</span></div>
+          <div class="mini-card red"><span>7</span><span class="suit">♥</span></div>
+          <div class="mini-card red"><span>6</span><span class="suit">♦</span></div>
+          <div class="mini-card black"><span>5</span><span class="suit">♣</span></div>
+          <div class="mini-card black"><span>4</span><span class="suit">♠</span></div>
+        </div>
+      </div>
+
+      <!-- 7. 트리플 -->
+      <div class="hand-item">
+        <div class="hand-top">
+          <div class="hand-left">
+            <span class="hand-rank-num">7</span>
+            <span class="hand-name">트리플</span>
+          </div>
+          <span class="hand-desc">같은 숫자 3장</span>
+        </div>
+        <div class="mini-card-row">
+          <div class="mini-card black"><span>Q</span><span class="suit">♠</span></div>
+          <div class="mini-card red"><span>Q</span><span class="suit">♥</span></div>
+          <div class="mini-card red"><span>Q</span><span class="suit">♦</span></div>
+          <div class="mini-card gray"><span>9</span><span class="suit">♣</span></div>
+          <div class="mini-card gray"><span>2</span><span class="suit">♠</span></div>
+        </div>
+      </div>
+
+      <!-- 8. 투페어 -->
+      <div class="hand-item">
+        <div class="hand-top">
+          <div class="hand-left">
+            <span class="hand-rank-num">8</span>
+            <span class="hand-name">투페어</span>
+          </div>
+          <span class="hand-desc">같은 숫자 2장씩 2쌍</span>
+        </div>
+        <div class="mini-card-row">
+          <div class="mini-card black"><span>A</span><span class="suit">♠</span></div>
+          <div class="mini-card red"><span>A</span><span class="suit">♦</span></div>
+          <div class="mini-card red"><span>K</span><span class="suit">♥</span></div>
+          <div class="mini-card black"><span>K</span><span class="suit">♣</span></div>
+          <div class="mini-card gray"><span>7</span><span class="suit">♠</span></div>
+        </div>
+      </div>
+
+      <!-- 9. 원페어 -->
+      <div class="hand-item">
+        <div class="hand-top">
+          <div class="hand-left">
+            <span class="hand-rank-num">9</span>
+            <span class="hand-name">원페어</span>
+          </div>
+          <span class="hand-desc">같은 숫자 2장 1쌍</span>
+        </div>
+        <div class="mini-card-row">
+          <div class="mini-card black"><span>10</span><span class="suit">♠</span></div>
+          <div class="mini-card red"><span>10</span><span class="suit">♥</span></div>
+          <div class="mini-card gray"><span>K</span><span class="suit">♦</span></div>
+          <div class="mini-card gray"><span>8</span><span class="suit">♣</span></div>
+          <div class="mini-card gray"><span>3</span><span class="suit">♠</span></div>
+        </div>
+      </div>
+
+      <!-- 10. 하이카드 -->
+      <div class="hand-item">
+        <div class="hand-top">
+          <div class="hand-left">
+            <span class="hand-rank-num">10</span>
+            <span class="hand-name">하이카드</span>
+          </div>
+          <span class="hand-desc">족보 완성 실패 시 가장 높은 카드</span>
+        </div>
+        <div class="mini-card-row">
+          <div class="mini-card black" style="border: 1px solid var(--gold-primary);"><span>A</span><span class="suit">♠</span></div>
+          <div class="mini-card gray"><span>J</span><span class="suit">♥</span></div>
+          <div class="mini-card gray"><span>8</span><span class="suit">♦</span></div>
+          <div class="mini-card gray"><span>6</span><span class="suit">♣</span></div>
+          <div class="mini-card gray"><span>2</span><span class="suit">♠</span></div>
+        </div>
+      </div>
+
+    </div>
   </div>
 
 </body>
