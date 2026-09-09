@@ -147,26 +147,88 @@
       font-weight: 800;
     }
 
-    /* 블랙잭 기본 룰 카드 내부 용어 설명 스타일 */
-    .term-box {
-      background: rgba(0, 0, 0, 0.35);
-      border-radius: 10px;
-      padding: 12px;
+    /* 카드 점수 계산 그리드 */
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
       margin-top: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .term-title {
-      font-size: 13.5px;
-      font-weight: 800;
-      color: var(--neon-cyan);
-      margin-bottom: 4px;
+    .calc-item {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 10px 6px;
+      text-align: center;
     }
 
-    .term-desc {
+    .calc-badge {
       font-size: 12px;
-      color: #aeb5c2;
+      font-weight: 800;
+      color: var(--gold-primary);
+      margin-bottom: 3px;
+    }
+
+    .calc-desc {
+      font-size: 11px;
+      color: #d1d5db;
+    }
+
+    /* 액션 설명 박스 */
+    .action-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .action-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 12.5px;
+    }
+
+    .action-tag {
+      font-weight: 800;
+      color: var(--gold-primary);
+      width: 75px;
+    }
+
+    .action-desc {
+      color: #cfd4dc;
+      text-align: right;
+    }
+
+    .info-box {
+      background: rgba(0, 229, 255, 0.08);
+      border-left: 3px solid var(--neon-cyan);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-top: 10px;
+      font-size: 12.5px;
+      color: #d1d5db;
       line-height: 1.45;
+    }
+
+    .warn-box {
+      background: rgba(255, 82, 82, 0.08);
+      border-left: 3px solid var(--accent-red);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-top: 10px;
+      font-size: 12.5px;
+      color: #ffcdd2;
+      line-height: 1.45;
+    }
+
+    .warn-box strong {
+      color: #ff5252;
     }
   </style>
 </head>
@@ -182,7 +244,7 @@
   <div class="page-title">블랙잭 설명서</div>
   <div class="page-sub">인스아웃 카지노 전용 블랙잭 베팅 및 운영 가이드</div>
 
-  <!-- 베팅 한도 카드 -->
+  <!-- 베팅 규정 및 한도 카드 -->
   <div class="card highlight">
     <div class="card-title">📌 베팅 규정 및 한도</div>
     <div class="bet-grid">
@@ -200,45 +262,71 @@
     </ul>
   </div>
 
-  <!-- 게임 규칙 및 딜러 룰 -->
+  <!-- 승리 조건 및 목표 -->
   <div class="card">
-    <div class="card-title">⚡ 게임 진행 및 딜러 룰</div>
+    <div class="card-title">🎯 승리 조건 및 목표</div>
     <ul class="rule-list">
-      <li><strong>딜러 룰 (H17):</strong> 딜러는 소프트 17(Soft 17)에서 히트(Hit)를 진행합니다.</li>
-      <li><strong>판수 제한:</strong> 원활한 회전율을 위해 <strong>최대 10판</strong>까지 플레이 가능합니다.</li>
+      <li><strong>목표:</strong> 카드 합이 <strong>21점에 가장 가까운 사람</strong>이 승리합니다.</li>
+      <li><strong>승리:</strong> 21점을 넘지 않으면서 딜러보다 높은 숫자를 완성하면 승리</li>
+      <li><strong>블랙잭(Natural):</strong> 처음 받은 2장으로 정확히 21점(A + 10/J/Q/K)을 완성한 최상의 패</li>
     </ul>
+    <div class="warn-box">
+      ⚠️ <strong>버스트 (Bust):</strong> 카드 합이 <strong>21점을 초과</strong>하면 딜러의 패와 관계없이 즉시 패배합니다.
+    </div>
   </div>
 
-  <!-- 블랙잭 기본 룰 설명 카드 -->
+  <!-- 카드 점수 계산법 -->
   <div class="card">
-    <div class="card-title">📖 블랙잭 기본 룰 가이드</div>
+    <div class="card-title">🔢 카드 점수 계산법</div>
+    <div class="calc-grid">
+      <div class="calc-item">
+        <div class="calc-badge">2 ~ 10</div>
+        <div class="calc-desc">적힌 숫자 그대로 계산</div>
+      </div>
+      <div class="calc-item">
+        <div class="calc-badge">J · Q · K</div>
+        <div class="calc-desc">모두 <strong>10점</strong>으로 계산</div>
+      </div>
+      <div class="calc-item">
+        <div class="calc-badge">A (에이스)</div>
+        <div class="calc-desc"><strong>1점</strong> 또는 <strong>11점</strong> 중 유리한 쪽 적용</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 플레이어 액션 -->
+  <div class="card">
+    <div class="card-title">✋ 플레이어 주요 액션</div>
+    <div class="action-list">
+      <div class="action-item">
+        <span class="action-tag">히트 (Hit)</span>
+        <span class="action-desc">카드를 1장 더 추가로 받음</span>
+      </div>
+      <div class="action-item">
+        <span class="action-tag">스탠드</span>
+        <span class="action-desc">추가 카드를 받지 않고 차례 종료</span>
+      </div>
+      <div class="action-item">
+        <span class="action-tag">더블다운</span>
+        <span class="action-desc">배팅을 두 배로 늘리고 딱 1장만 더 받고 승부</span>
+      </div>
+      <div class="action-item">
+        <span class="action-tag">스플릿</span>
+        <span class="action-desc">처음 2장의 숫자가 같을 때 두 패로 분리</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 딜러 진행 규칙 -->
+  <div class="card">
+    <div class="card-title">🤖 딜러 진행 규칙 및 운영 규정</div>
     <ul class="rule-list">
-      <li><strong>게임 목표:</strong> 카드 합이 <strong>21에 가깝거나 정확히 일치</strong>하면서 딜러의 합보다 높으면 승리합니다. (21을 초과하면 버스트로 즉시 패배)</li>
-      <li><strong>카드 숫자 계산:</strong> 
-        <br>• 2 ~ 10: 적힌 숫자 그대로 인정
-        <br>• J, Q, K: 모두 10으로 계산
-        <br>• A (에이스): 상황에 따라 1 또는 11로 유리하게 계산
-      </li>
+      <li><strong>딜러 룰 (H17):</strong> 딜러는 소프트 17(Soft 17)에서 <strong>히트(Hit)</strong>를 진행합니다.</li>
+      <li>딜러는 본인의 의지와 상관없이 정해진 룰에 따라서만 카드를 받습니다. (16점 이하 히트, 17점 이상 스탠드)</li>
+      <li><strong>판수 제한:</strong> 원활한 회전율을 위해 <strong>최대 10판</strong>까지 플레이 가능합니다.</li>
     </ul>
-
-    <div class="term-box">
-      <div class="term-title">Hit (히트)</div>
-      <div class="term-desc">카드를 한 장 더 받습니다.</div>
-    </div>
-
-    <div class="term-box">
-      <div class="term-title">Stand (스탠드)</div>
-      <div class="term-desc">현재 카드로 만족하며 더 이상 받지 않고 턴을 종료합니다.</div>
-    </div>
-
-    <div class="term-box">
-      <div class="term-title">Double Down (더블 다운)</div>
-      <div class="term-desc">초기 베팅을 두 배로 늘리는 대신, <strong>정확히 딱 1장의 카드만 더 받고</strong> 턴을 종료합니다.</div>
-    </div>
-
-    <div class="term-box">
-      <div class="term-title">Split (스플릿)</div>
-      <div class="term-desc">처음 받은 두 장의 카드가 <strong>같은 숫자(또는 림)</strong>일 때, 각각 별개의 핸드로 나누어 독립적으로 게임을 진행합니다.</div>
+    <div class="info-box">
+      💡 딜러가 21점을 초과(Bust)하면, 버스트되지 않고 살아남은 모든 플레이어가 승리합니다.
     </div>
   </div>
 
