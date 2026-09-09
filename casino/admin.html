@@ -97,6 +97,14 @@
       font-size: 14px;
       font-weight: 800;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lock-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
     .error-msg {
@@ -418,7 +426,6 @@
       padding: 0 2px;
     }
 
-    /* 실행 취소(복구) 버튼 스타일 */
     .undo-btn {
       background: rgba(245, 200, 66, 0.12);
       border: 1px solid var(--gold-primary);
@@ -486,7 +493,6 @@
       font-size: 12.5px;
     }
 
-    /* 어디든 클릭하면 닫히는 경고 모달 */
     .warn-modal-overlay {
       position: fixed;
       top: 0; left: 0;
@@ -569,7 +575,7 @@
       <div class="lock-title">🔒 ADMIN VERIFICATION</div>
       <div class="lock-sub">관리자 전용 접근 화면입니다.</div>
       <input type="password" id="pwInput" class="lock-input" placeholder="비밀번호 입력">
-      <button class="lock-btn" onclick="checkPW()">접속하기</button>
+      <button class="lock-btn" id="loginBtn" onclick="checkPW()">접속하기</button>
       <div id="errorMsg" class="error-msg">비밀번호가 올바르지 않습니다.</div>
     </div>
   </div>
@@ -624,7 +630,6 @@
           <span id="queueGameTitle" style="font-weight: 700; color: #fff;">♠️ 홀덤 대기 명단</span>
           <span style="margin-left: 6px;">대기 중: <strong id="queueTotalCount" style="color: var(--gold-primary);">0</strong>명</span>
         </div>
-        <!-- 최대 3회 착석 취소(복구) 버튼 -->
         <button id="undoQueueBtn" class="undo-btn" onclick="undoLastFinish()"></button>
       </div>
 
@@ -648,6 +653,27 @@
     const db = firebase.database();
     const adminRef = db.ref('casino_users');
     const queueRootRef = db.ref('casino_table_queues');
+    const configRef = db.ref('casino_admin_config');
+
+    async function sha256(message) {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    const DEFAULT_INIT_HASH = "ca59441ec9cd2d69f06bf3b683ef95450c2ceee0ffc608b26ddf604ec283fa71";
+    let serverPasswordHash = null;
+
+    configRef.child('adminPasswordHash').on('value', (snapshot) => {
+      const val = snapshot.val();
+      if (!val) {
+        configRef.child('adminPasswordHash').set(DEFAULT_INIT_HASH);
+        serverPasswordHash = DEFAULT_INIT_HASH;
+      } else {
+        serverPasswordHash = val;
+      }
+    });
 
     const defaultNames = [
       "김민기", "이용규", "김성기", "이주명", "이나예", 
@@ -661,8 +687,6 @@
     let currentView = 'users';
     let currentQueueGame = 'holdem';
     let currentQueueData = {}; 
-    
-    // 최대 3개까지 저장하는 복구 스택 (배열)
     let undoStack = []; 
 
     const queueGameTitles = {
@@ -671,7 +695,6 @@
       roulette: '🎯 룰렛 대기 명단'
     };
 
-    // 모달 제어 함수
     function showWarnModal(name) {
       const modal = document.getElementById('warnModalOverlay');
       const msg = document.getElementById('warnModalMessage');
@@ -762,14 +785,39 @@
       }
     });
 
-    // 3. 비밀번호 검증 (escape)
-    function checkPW() {
-      const input = document.getElementById('pwInput').value;
-      if (input === "escape") {
-        document.getElementById('lockOverlay').style.display = 'none';
-        sessionStorage.setItem('ins_out_auth', 'ok');
-      } else {
-        document.getElementById('errorMsg').style.display = 'block';
+    // 3. 비밀번호 검증
+    async function checkPW() {
+      const input = document.getElementById('pwInput');
+      const errorMsg = document.getElementById('errorMsg');
+      const loginBtn = document.getElementById('loginBtn');
+      
+      const enteredPW = input.value.trim();
+      if (!enteredPW) return;
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = '검증 중...';
+
+      try {
+        const inputHash = await sha256(enteredPW);
+        const snapshot = await configRef.child('adminPasswordHash').once('value');
+        const dbHash = snapshot.val() || DEFAULT_INIT_HASH;
+
+        if (inputHash === dbHash) {
+          document.getElementById('lockOverlay').style.display = 'none';
+          sessionStorage.setItem('ins_out_auth', 'ok');
+          errorMsg.style.display = 'none';
+        } else {
+          errorMsg.textContent = '비밀번호가 올바르지 않습니다.';
+          errorMsg.style.display = 'block';
+          input.value = '';
+          input.focus();
+        }
+      } catch (err) {
+        errorMsg.textContent = '인증 중 오류가 발생했습니다.';
+        errorMsg.style.display = 'block';
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = '접속하기';
       }
     }
 
@@ -940,18 +988,15 @@
       document.getElementById('autocompleteBox').style.display = 'none';
     }
 
-    // 착석 완료 처리 (최대 3개 스택에 보관)
     function finishQueue(key) {
       if (!currentQueueData[key]) return;
       
-      // 스택 맨 뒤에 추가
       undoStack.push({
         game: currentQueueGame,
         key: key,
         data: { ...currentQueueData[key] }
       });
 
-      // 최대 3개 유지 (초과 시 가장 오래된 것 제거)
       if (undoStack.length > 3) {
         undoStack.shift();
       }
@@ -960,9 +1005,7 @@
       updateUndoButtonState();
     }
 
-    // 착석 취소(실행 취소): 스택 맨 뒤에서 꺼내어 원래 순번(createdAt) 그대로 복구
     function undoLastFinish() {
-      // 현재 게임에 해당하는 가장 최근 백업 데이터 찾기
       const targetIndex = undoStack.map(item => item.game).lastIndexOf(currentQueueGame);
       if (targetIndex === -1) return;
 
@@ -973,7 +1016,6 @@
       updateUndoButtonState();
     }
 
-    // 현재 게임에 유효한 복구 데이터가 있는지 확인하고 버튼 갱신
     function updateUndoButtonState() {
       const undoBtn = document.getElementById('undoQueueBtn');
       const availableItems = undoStack.filter(item => item.game === currentQueueGame);
@@ -987,11 +1029,9 @@
       }
     }
 
-    // 해당 게임 대기열 전체 비우기
     function resetCurrentQueue() {
       if (confirm(`현재 [${queueGameTitles[currentQueueGame]}] 대기열을 모두 비우시겠습니까?`)) {
         queueRootRef.child(currentQueueGame).remove();
-        // 현재 게임의 복구 스택 비우기
         undoStack = undoStack.filter(item => item.game !== currentQueueGame);
         updateUndoButtonState();
       }
@@ -1030,7 +1070,6 @@
       `).join('');
     }
 
-    // 초기 실행
     listenQueue(currentQueueGame);
   </script>
 </body>
