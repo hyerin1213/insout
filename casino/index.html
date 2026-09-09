@@ -51,13 +51,22 @@
       height: 100%;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
       align-items: center;
-      padding-top: calc(env(safe-area-inset-top) + clamp(12px, 2.8vh, 24px));
-      padding-bottom: calc(env(safe-area-inset-bottom) + clamp(10px, 2.2vh, 20px));
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
-    /* 1. 상단 헤더 영역 */
+    /* 상단 빈 공간의 정가운데 정렬 컨테이너 */
+    .top-space-wrapper {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+    }
+
+    /* 헤더 */
     header {
       width: 100%;
       text-align: center;
@@ -71,8 +80,8 @@
     }
 
     .brand-logo {
-      width: clamp(26px, 4vh, 32px);
-      height: clamp(26px, 4vh, 32px);
+      width: clamp(26px, 3.8vh, 32px);
+      height: clamp(26px, 3.8vh, 32px);
       object-fit: contain;
       border-radius: 50%;
       overflow: hidden;
@@ -81,7 +90,7 @@
 
     .brand-title {
       font-family: 'Montserrat', sans-serif;
-      font-size: clamp(22px, 4vh, 27px);
+      font-size: clamp(22px, 3.8vh, 27px);
       font-weight: 900;
       letter-spacing: 2px;
       background: var(--gold-gradient);
@@ -99,7 +108,7 @@
     }
 
     .brand-sub {
-      font-size: clamp(9.5px, 1.5vh, 10.5px);
+      font-size: clamp(9.5px, 1.4vh, 10.5px);
       color: #8c93a3;
       letter-spacing: 2px;
       font-weight: 600;
@@ -125,13 +134,13 @@
       border-color: var(--gold-primary);
     }
 
-    /* 2. 중앙 3x3 정사각 그리드 */
+    /* 중앙 3x3 정사각 그리드 (화면 정중앙에 위치) */
     main {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: clamp(7px, 2vw, 11px);
       width: 100%;
-      margin: auto 0;
+      flex-shrink: 0;
     }
 
     .game-card {
@@ -184,13 +193,23 @@
       line-height: 1.15;
     }
 
-    /* 3. 하단 운영 시간 인포 박스 */
+    /* 하단 빈 공간의 정가운데 정렬 컨테이너 */
+    .bottom-space-wrapper {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+    }
+
+    /* 하단 운영 시간 인포 바 */
     .schedule-bar {
       width: 100%;
       background: rgba(23, 27, 38, 0.85);
       border: 1px solid rgba(212, 175, 55, 0.3);
       border-radius: 12px;
-      padding: clamp(7px, 1.4vh, 10px) 10px;
+      padding: clamp(7px, 1.3vh, 10px) 10px;
       display: flex;
       align-items: center;
       justify-content: space-around;
@@ -218,7 +237,7 @@
 
     .time-val {
       font-family: 'Montserrat', sans-serif;
-      font-size: clamp(10.5px, 1.7vh, 12.5px);
+      font-size: clamp(10.5px, 1.6vh, 12px);
       font-weight: 800;
       color: #fff;
       letter-spacing: 0.5px;
@@ -239,19 +258,21 @@
 <body>
 
   <div class="main-wrapper">
-    <!-- 상단 헤더 -->
-    <header>
-      <div class="brand-title-wrap">
-        <img src="logo.png" alt="Logo" class="brand-logo" onerror="this.style.display='none'">
-        <div class="brand-title">IN'S OUT</div>
-      </div>
-      <div class="header-sub-bar">
-        <span class="brand-sub">CASINO GAME RULES</span>
-        <a href="admin.html" class="admin-link">⚙️ 관리자</a>
-      </div>
-    </header>
+    <!-- 1. 상단 공백의 정가운데에 배치되는 헤더 -->
+    <div class="top-space-wrapper">
+      <header>
+        <div class="brand-title-wrap">
+          <img src="logo.png" alt="Logo" class="brand-logo" onerror="this.style.display='none'">
+          <div class="brand-title">IN'S OUT</div>
+        </div>
+        <div class="header-sub-bar">
+          <span class="brand-sub">CASINO GAME RULES</span>
+          <a href="admin.html" class="admin-link">⚙️ 관리자</a>
+        </div>
+      </header>
+    </div>
 
-    <!-- 중앙 3x3 정사각 그리드 -->
+    <!-- 2. 화면 정중앙 3x3 그리드 -->
     <main>
       <!-- 1. 룰렛 -->
       <a href="roulette.html" class="game-card">
@@ -317,21 +338,23 @@
       </a>
     </main>
 
-    <!-- 하단 운영 시간 인포 바 -->
-    <div class="schedule-bar">
-      <div class="time-item">
-        <span class="time-tag">🕒 1부</span>
-        <span class="time-val">12:30 - 14:30</span>
-      </div>
-      <div class="time-divider"></div>
-      <div class="time-item">
-        <span class="time-tag break">☕ 쉬는시간</span>
-        <span class="time-val break">14:30 - 14:50</span>
-      </div>
-      <div class="time-divider"></div>
-      <div class="time-item">
-        <span class="time-tag">🎲 2부</span>
-        <span class="time-val">14:50 - 16:50</span>
+    <!-- 3. 하단 공백의 정가운데에 배치되는 운영시간 바 -->
+    <div class="bottom-space-wrapper">
+      <div class="schedule-bar">
+        <div class="time-item">
+          <span class="time-tag">🕒 1부</span>
+          <span class="time-val">12:30 - 14:30</span>
+        </div>
+        <div class="time-divider"></div>
+        <div class="time-item">
+          <span class="time-tag break">☕ 쉬는시간</span>
+          <span class="time-val break">14:30 - 14:50</span>
+        </div>
+        <div class="time-divider"></div>
+        <div class="time-item">
+          <span class="time-tag">🕒 2부</span>
+          <span class="time-val">14:50 - 16:50</span>
+        </div>
       </div>
     </div>
   </div>
