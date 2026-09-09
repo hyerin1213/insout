@@ -190,7 +190,7 @@
       color: var(--gold-primary);
     }
 
-    /* 1. 참가자 관리 스타일 (기존) */
+    /* 1. 참가자 관리 스타일 */
     .list-container {
       display: flex;
       flex-direction: column;
@@ -328,14 +328,20 @@
       color: var(--neon-cyan);
     }
 
+    /* 등록 카드 및 자동완성 컨테이너 */
     .reg-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 10px;
       padding: 10px;
       margin-bottom: 12px;
+      position: relative;
+    }
+
+    .reg-input-group {
       display: flex;
       gap: 8px;
+      position: relative;
     }
 
     .reg-input {
@@ -343,7 +349,7 @@
       background: rgba(0, 0, 0, 0.4);
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 6px;
-      padding: 8px 10px;
+      padding: 9px 12px;
       color: #fff;
       font-size: 13.5px;
       outline: none;
@@ -357,9 +363,51 @@
       color: #0b0d13;
       font-weight: 800;
       font-size: 12.5px;
-      padding: 0 14px;
+      padding: 0 16px;
       border-radius: 6px;
       cursor: pointer;
+    }
+
+    /* 초성 검색 결과 드롭다운 */
+    .autocomplete-box {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #151923;
+      border: 1px solid var(--gold-primary);
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+      max-height: 180px;
+      overflow-y: auto;
+      z-index: 50;
+      display: none;
+    }
+
+    .autocomplete-item {
+      padding: 10px 14px;
+      font-size: 13.5px;
+      color: #cfd4dc;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .autocomplete-item:last-child {
+      border-bottom: none;
+    }
+
+    .autocomplete-item:hover, .autocomplete-item:active {
+      background: rgba(245, 200, 66, 0.15);
+      color: #fff;
+    }
+
+    .autocomplete-item .match-badge {
+      font-size: 11px;
+      color: var(--gold-primary);
+      font-weight: 700;
     }
 
     .queue-info-bar {
@@ -382,11 +430,6 @@
       justify-content: space-between;
     }
 
-    .queue-item.calling {
-      border-color: var(--neon-green);
-      background: rgba(0, 255, 170, 0.08);
-    }
-
     .queue-num {
       font-family: 'Montserrat', sans-serif;
       font-size: 14px;
@@ -407,16 +450,15 @@
     }
 
     .q-btn {
-      padding: 5px 8px;
-      border-radius: 5px;
-      font-size: 11px;
+      padding: 6px 11px;
+      border-radius: 6px;
+      font-size: 11.5px;
       font-weight: 700;
       border: none;
       cursor: pointer;
       margin-left: 4px;
     }
 
-    .q-btn-call { background: rgba(0, 255, 170, 0.15); border: 1px solid var(--neon-green); color: var(--neon-green); }
     .q-btn-done { background: rgba(0, 229, 255, 0.15); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); }
     .q-btn-del { background: rgba(255, 82, 82, 0.15); border: 1px solid var(--accent-red); color: var(--accent-red); }
 
@@ -471,9 +513,19 @@
         <button class="game-tab-btn" onclick="switchQueueGame('roulette')">🎯 룰렛</button>
       </div>
 
+      <!-- 대기자 등록 폼 & 초성 검색 입력창 -->
       <div class="reg-card">
-        <input type="text" id="queuePlayerInput" class="reg-input" placeholder="대기 등록할 참가자 이름" onkeypress="if(event.keyCode==13) addQueuePlayer()">
-        <button class="reg-btn" onclick="addQueuePlayer()">등록</button>
+        <div class="reg-input-group">
+          <input type="text" id="queuePlayerInput" class="reg-input" 
+                 placeholder="이름 또는 초성 검색 (예: ㄹㅈㅇ, 홍길동)" 
+                 autocomplete="off"
+                 oninput="handleNameSearch(this.value)" 
+                 onkeypress="if(event.keyCode==13) addQueuePlayer()">
+          <button class="reg-btn" onclick="addQueuePlayer()">등록</button>
+
+          <!-- 초성/이름 검색 드롭다운 -->
+          <div id="autocompleteBox" class="autocomplete-box"></div>
+        </div>
       </div>
 
       <div class="queue-info-bar">
@@ -486,7 +538,7 @@
   </div>
 
   <script>
-    // 1. Firebase 초기화 (제공해주신 프로젝트 정보 적용)
+    // 1. Firebase 초기화
     const firebaseConfig = {
       apiKey: "AIzaSyD2iFUXGnZzag8M51sQSTo27tPMsvAS5_Y",
       authDomain: "insout-898fa.firebaseapp.com",
@@ -519,7 +571,87 @@
       roulette: '🎯 룰렛 대기 명단'
     };
 
-    // 2. 비밀번호 체크 (escape)
+    // 2. 한글 초성 검색 분리 알고리즘
+    const CHO_HANGUL = [
+      'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 
+      'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
+    ];
+
+    function getChosung(str) {
+      let result = '';
+      for (let i = 0; i < str.length; i++) {
+        const code = str.charCodeAt(i) - 44032;
+        if (code > -1 && code < 11172) {
+          result += CHO_HANGUL[Math.floor(code / 588)];
+        } else {
+          result += str.charAt(i);
+        }
+      }
+      return result;
+    }
+
+    function matchKorean(target, keyword) {
+      if (!keyword) return false;
+      const cleanTarget = target.trim();
+      const cleanKey = keyword.trim();
+      if (!cleanTarget) return false;
+
+      // 일반 부분 일치 (예: '지영')
+      if (cleanTarget.includes(cleanKey)) return true;
+
+      // 초성 일치 (예: 'ㄹㅈㅇ')
+      const targetChosung = getChosung(cleanTarget);
+      if (targetChosung.includes(cleanKey)) return true;
+
+      return false;
+    }
+
+    function handleNameSearch(val) {
+      const box = document.getElementById('autocompleteBox');
+      const query = val.trim();
+      if (!query) {
+        box.style.display = 'none';
+        return;
+      }
+
+      // 등록된 참가자 명단에서 유효한 이름 목록 필터링
+      const namePool = currentUsers
+        .map(u => u.name ? u.name.trim() : '')
+        .filter(n => n.length > 0);
+
+      const matches = namePool.filter(name => matchKorean(name, query));
+
+      if (matches.length === 0) {
+        box.style.display = 'none';
+        return;
+      }
+
+      box.innerHTML = matches.map(name => `
+        <div class="autocomplete-item" onclick="selectName('${name}')">
+          <span style="font-weight:700; color:#fff;">${name}</span>
+          <span class="match-badge">${getChosung(name)}</span>
+        </div>
+      `).join('');
+      box.style.display = 'block';
+    }
+
+    function selectName(name) {
+      const input = document.getElementById('queuePlayerInput');
+      input.value = name;
+      document.getElementById('autocompleteBox').style.display = 'none';
+      input.focus();
+    }
+
+    // 외부 클릭 시 드롭다운 닫기
+    document.addEventListener('click', (e) => {
+      const box = document.getElementById('autocompleteBox');
+      const input = document.getElementById('queuePlayerInput');
+      if (box && !box.contains(e.target) && e.target !== input) {
+        box.style.display = 'none';
+      }
+    });
+
+    // 3. 비밀번호 체크 (escape)
     function checkPW() {
       const input = document.getElementById('pwInput').value;
       if (input === "escape") {
@@ -538,7 +670,7 @@
       if (e.key === "Enter") checkPW();
     });
 
-    // 3. 모드 뷰 전환 (참가자 vs 예약)
+    // 4. 모드 뷰 전환 (참가자 vs 예약)
     function switchView(view) {
       currentView = view;
       document.getElementById('tabUsersBtn').classList.toggle('active', view === 'users');
@@ -562,7 +694,7 @@
       }
     }
 
-    // 4. 참가자 관리 파트 (기존 로직 유지)
+    // 5. 참가자 관리 파트 (기존 로직 유지)
     adminRef.on('value', (snapshot) => {
       const data = snapshot.val();
       if (!data) {
@@ -645,7 +777,7 @@
       }
     }
 
-    // 5. 예약/순번 관리 파트 (신규 실시간 동기화)
+    // 6. 예약/순번 관리 파트
     let currentQueueListener = null;
 
     function switchQueueGame(game) {
@@ -678,35 +810,33 @@
       queueRootRef.child(currentQueueGame).push({
         name: name,
         time: timeStr,
-        calling: false,
         createdAt: firebase.database.ServerValue.TIMESTAMP
       });
 
       input.value = '';
+      document.getElementById('autocompleteBox').style.display = 'none';
     }
 
-    function toggleCall(key, callingState) {
-      queueRootRef.child(currentQueueGame).child(key).update({
-        calling: !callingState
-      });
-    }
-
+    // 착석 완료 (대기열에서 제거)
     function finishQueue(key) {
       queueRootRef.child(currentQueueGame).child(key).remove();
     }
 
+    // 예약 취소/삭제
     function removeQueue(key) {
       if (confirm('해당 대기자를 삭제하시겠습니까?')) {
         queueRootRef.child(currentQueueGame).child(key).remove();
       }
     }
 
+    // 전체 비우기
     function resetCurrentQueue() {
       if (confirm(`현재 [${queueGameTitles[currentQueueGame]}] 대기열을 모두 비우시겠습니까?`)) {
         queueRootRef.child(currentQueueGame).remove();
       }
     }
 
+    // 호출 버튼 없이 [착석]과 [삭제]만 표시
     function renderQueueList(data) {
       const container = document.getElementById('queueListContainer');
       const totalCount = document.getElementById('queueTotalCount');
@@ -725,21 +855,15 @@
       totalCount.textContent = list.length;
 
       container.innerHTML = list.map((item, idx) => `
-        <div class="queue-item ${item.calling ? 'calling' : ''}">
+        <div class="queue-item">
           <div style="display: flex; align-items: center;">
             <span class="queue-num">#${idx + 1}</span>
             <div>
-              <div class="queue-name">
-                ${item.name}
-                ${item.calling ? '<span style="color:var(--neon-green); font-size:11px; margin-left:4px;">[호출중]</span>' : ''}
-              </div>
+              <div class="queue-name">${item.name}</div>
               <div class="queue-time">접수 ${item.time || ''}</div>
             </div>
           </div>
           <div>
-            <button class="q-btn q-btn-call" onclick="toggleCall('${item.key}', ${item.calling})">
-              ${item.calling ? '호출취소' : '호출'}
-            </button>
             <button class="q-btn q-btn-done" onclick="finishQueue('${item.key}')">착석</button>
             <button class="q-btn q-btn-del" onclick="removeQueue('${item.key}')">삭제</button>
           </div>
