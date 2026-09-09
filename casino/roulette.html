@@ -114,6 +114,20 @@
       color: #fff;
     }
 
+    .highlight-box {
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-top: 10px;
+      font-size: 12.5px;
+      border-left: 3px solid var(--neon-cyan);
+    }
+
+    .warn-text {
+      color: #ff5252;
+      font-weight: 700;
+    }
+
     /* 한 화면 맞춤형 반응형 테이블 */
     .table-container {
       width: 100%;
@@ -175,12 +189,16 @@
 
   <!-- 1. 배팅 한도 및 수수료 -->
   <div class="card highlight">
-    <div class="card-title">📌 배팅 한도 및 수수료</div>
+    <div class="card-title">📌 배팅/수수료 및 참여 기준</div>
     <ul class="rule-list">
       <li><strong>최소 배팅:</strong> 10칩</li>
       <li><strong>최대 배팅:</strong> 제한 없음</li>
       <li><strong>배팅수수료 :</strong> 배팅 금액의 절반(50%) 딜러 수수료 차감</li>
+      <li><strong>참여 기준:</strong> 1회 참여 시 초기 자금 200칩 지참</li>
     </ul>
+    <div class="highlight-box">
+      ⚠️ <strong><span class="warn-text">초기 자금(200칩) 모두 소진 시 자리 이동 (게임 중 딴 칩은 재배팅 불가)</span></strong>됩니다.
+    </div>
   </div>
 
   <!-- 2. 참여 및 청산 기준 -->
