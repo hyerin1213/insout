@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>게임 공식 룰북 - IN'S OUT CASINO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,13 +19,13 @@
       --text-main: #f0f2f5;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
     body {
       font-family: 'Noto Sans KR', sans-serif;
       background-color: var(--bg-dark);
       color: var(--text-main);
-      padding: 0 14px 40px 14px;
+      padding: 0 14px calc(40px + env(safe-area-inset-bottom)) 14px;
       line-height: 1.5;
     }
 
@@ -34,7 +34,7 @@
       top: 0;
       background: rgba(11, 13, 19, 0.95);
       backdrop-filter: blur(10px);
-      padding: 14px 0;
+      padding: calc(14px + env(safe-area-inset-top)) 0 14px 0;
       display: flex;
       align-items: center;
       border-bottom: 1px solid rgba(212, 175, 55, 0.2);
@@ -110,15 +110,35 @@
 
     ul.rule-list li strong {
       color: #fff;
+      font-weight: 800;
     }
 
-    /* 테두리/배경 없이 글자 색상만 강조하는 보상 텍스트 */
+    /* 배팅칩 화이트 볼드 강조 텍스트 */
+    .chip-bold {
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    /* 보상 텍스트 */
     .reward-text {
       color: var(--neon-green);
       font-weight: 800;
     }
 
-    /* 도전 제한 경고 박스 공통 스타일 */
+    /* ※ 별도 수수료 안내 문구 스타일 */
+    .fee-notice {
+      font-size: 12px;
+      color: #9ba3b4;
+      margin-top: 10px;
+      padding-left: 2px;
+      line-height: 1.4;
+    }
+
+    .fee-notice strong {
+      color: #cfd4dc;
+    }
+
+    /* 도전 제한 경고 박스 */
     .warn-box {
       margin-top: 12px;
       background: rgba(255, 82, 82, 0.1);
@@ -132,6 +152,7 @@
 
     .warn-box strong {
       color: #ff5252;
+      font-weight: 800;
     }
   </style>
 </head>
@@ -151,7 +172,7 @@
   <div class="card highlight">
     <div class="card-title">🏎️ 레이싱 기록 갱신 챌린지</div>
     <ul class="rule-list">
-      <li><strong>도전 배팅:</strong> 1회 도전당 30칩</li>
+      <li><strong>도전 배팅:</strong> 1회 도전당 <span class="chip-bold">30칩</span></li>
       <li><strong>성공 보상:</strong> 최고 기록 달성 시 <span class="reward-text">100칩 지급</span></li>
     </ul>
     <!-- 도전 제한 경고 -->
@@ -165,10 +186,15 @@
     <div class="card-title">🎮 닌텐도 대전 모드 규정</div>
     <ul class="rule-list">
       <li><strong>진행 방식:</strong> 일반 대전(Versus) 모드로 2인이 3판 2선승제</li>
-      <li><strong>참가 배팅:</strong> 1인당 60칩 베팅</li>
-      <li><strong>심판 수수료:</strong> 배팅당 5칩은 심판(운영진) 수수료로 차감</li>
+      <li><strong>참가 배팅:</strong> 1인당 <span class="chip-bold">60칩</span> 베팅</li>
       <li><strong>승리 보상:</strong> <span class="reward-text">110칩 지급</span></li>
     </ul>
+
+    <!-- ※ 심판 수수료 별도 표시 -->
+    <div class="fee-notice">
+      ※ 배팅당 5칩은 <strong>심판(운영진) 수수료</strong>로 차감됩니다.
+    </div>
+
     <!-- 도전 제한 경고 -->
     <div class="warn-box">
       ⚠️ <strong>도전 제한:</strong> <strong>5연승</strong> 달성 시 해당 게임 참가 불가
