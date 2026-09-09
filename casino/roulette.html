@@ -89,6 +89,33 @@
       gap: 6px;
     }
 
+     .bet-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .bet-item {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .bet-label {
+      font-size: 11px;
+      color: #9ba3b4;
+      margin-bottom: 2px;
+    }
+
+    .bet-val {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--gold-primary);
+    }
+
     ul.rule-list {
       list-style: none;
       font-size: 13px;
@@ -190,6 +217,16 @@
   <!-- 1. 배팅 한도 및 수수료 -->
   <div class="card highlight">
     <div class="card-title">📌 배팅/수수료 및 참여 기준</div>
+    <div class="bet-grid">
+      <div class="bet-item">
+        <div class="bet-label">최소 베팅</div>
+        <div class="bet-val">10 칩</div>
+      </div>
+      <div class="bet-item">
+        <div class="bet-label">최대 베팅</div>
+        <div class="bet-val">30 칩</div>
+      </div>
+    </div>
     <ul class="rule-list">
       <li><strong>최소 배팅:</strong> 10칩</li>
       <li><strong>최대 배팅:</strong> 제한 없음</li>
@@ -220,8 +257,8 @@
             <td class="payout">1:35</td>
           </tr>
           <tr>
-            <td><strong>인사이드 내<br>스플릿 없음</strong></td>
-            <td>지정 인사이드 구역</td>
+            <td><strong>스플릿</strong></td>
+            <td>배팅 대상 단일 숫자 2개</td>
             <td class="payout">1:16</td>
           </tr>
           <tr>
