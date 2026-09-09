@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>경마 룰 - IN'S OUT CASINO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,13 +16,13 @@
       --text-main: #f0f2f5;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
     body {
       font-family: 'Noto Sans KR', sans-serif;
       background-color: var(--bg-dark);
       color: var(--text-main);
-      padding: 0 14px 40px 14px;
+      padding: 0 14px calc(40px + env(safe-area-inset-bottom));
       line-height: 1.5;
     }
 
@@ -31,7 +31,7 @@
       top: 0;
       background: rgba(11, 13, 19, 0.95);
       backdrop-filter: blur(10px);
-      padding: 14px 0;
+      padding: calc(14px + env(safe-area-inset-top)) 0 14px 0;
       display: flex;
       align-items: center;
       border-bottom: 1px solid rgba(212, 175, 55, 0.2);
@@ -163,7 +163,7 @@
     </a>
   </div>
 
-  <div class="page-title">🏇 경마 게임 설명서</div>
+  <div class="page-title">🏇 경마 게임 공식 설명서</div>
   <div class="page-sub">단승식 또는 복승식 보드판에 20칩을 거치해 주세요!</div>
 
   <!-- 1. 기본 배팅 규정 -->
@@ -177,7 +177,7 @@
     </ul>
   </div>
 
-  <!-- 2. 주행 및 보너스 상세 규칙 (기본 배팅 규정 아래로 이동) -->
+  <!-- 2. 주행 및 보너스 상세 규칙 -->
   <div class="card">
     <div class="card-title">⚡ 주행 및 보너스 상세 규칙</div>
     <ul class="rule-list">
@@ -189,7 +189,7 @@
 
   <!-- 3. 단승식 배당표 -->
   <div class="card">
-    <div class="card-title">🏆 1. 단승식 배당표 (20칩 배팅 시)</div>
+    <div class="card-title">🏆 1. 단승식 배당표</div>
     <div class="table-container">
       <table>
         <thead>
@@ -197,7 +197,7 @@
             <th>말 번호</th>
             <th>구분</th>
             <th>연속 질주 보너스</th>
-            <th>지급 환급액</th>
+            <th>총 지급액</th>
           </tr>
         </thead>
         <tbody>
@@ -205,55 +205,55 @@
             <td><strong>6</strong></td>
             <td><span class="badge badge-pop">인기마</span></td>
             <td><span class="tag-b1">연속 시 +1칸</span></td>
-            <td class="payout">30칩</td>
+            <td class="payout">50칩</td>
           </tr>
           <tr>
             <td><strong>8</strong></td>
             <td><span class="badge badge-pop">인기마</span></td>
             <td><span class="tag-b1">연속 시 +1칸</span></td>
-            <td class="payout">30칩</td>
+            <td class="payout">50칩</td>
           </tr>
           <tr>
             <td><strong>7</strong></td>
             <td><span class="badge badge-pop">인기마</span></td>
             <td><span class="tag-none">없음</span></td>
-            <td class="payout">40칩</td>
+            <td class="payout">60칩</td>
           </tr>
           <tr>
             <td><strong>5</strong></td>
             <td><span class="badge badge-mid">복병마</span></td>
             <td><span class="tag-b2">연속 시 +2칸</span></td>
-            <td class="payout">50칩</td>
+            <td class="payout">70칩</td>
           </tr>
           <tr>
             <td><strong>9</strong></td>
             <td><span class="badge badge-mid">복병마</span></td>
             <td><span class="tag-b2">연속 시 +2칸</span></td>
-            <td class="payout">50칩</td>
+            <td class="payout">70칩</td>
           </tr>
           <tr>
             <td><strong>4</strong></td>
             <td><span class="badge badge-out">외곽마</span></td>
             <td><span class="tag-b3">연속 시 +3칸</span></td>
-            <td class="payout">140칩</td>
+            <td class="payout">160칩</td>
           </tr>
           <tr>
             <td><strong>10</strong></td>
             <td><span class="badge badge-out">외곽마</span></td>
             <td><span class="tag-b3">연속 시 +3칸</span></td>
-            <td class="payout">140칩</td>
+            <td class="payout">160칩</td>
           </tr>
           <tr>
             <td><strong>2 / 3</strong></td>
             <td><span class="badge badge-out">외곽마</span></td>
             <td><span class="tag-b3">연속 시 +3칸</span></td>
-            <td class="payout">140칩</td>
+            <td class="payout">160칩</td>
           </tr>
           <tr>
             <td><strong>11 / 12</strong></td>
             <td><span class="badge badge-out">외곽마</span></td>
             <td><span class="tag-b3">연속 시 +3칸</span></td>
-            <td class="payout">140칩</td>
+            <td class="payout">160칩</td>
           </tr>
         </tbody>
       </table>
@@ -262,31 +262,31 @@
 
   <!-- 4. 복승식 배당표 -->
   <div class="card">
-    <div class="card-title">🎯 2. 복승식 배당표 (20칩 배팅 시)</div>
+    <div class="card-title">🎯 2. 복승식 배당표</div>
     <div class="table-container">
       <table>
         <thead>
           <tr>
             <th>조합 유형</th>
             <th>조합 기준 (순서 무관)</th>
-            <th>지급 환급액</th>
+            <th>총 지급액</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td><strong style="color:#a5d6a7;">인기마 조합</strong></td>
             <td style="text-align:left; padding-left:8px;"><strong>6, 7, 8</strong> 중에서만 1·2위 적중</td>
-            <td class="payout">60칩</td>
+            <td class="payout">80칩</td>
           </tr>
           <tr>
             <td><strong style="color:#FFB6A6;">이변 조합</strong></td>
             <td style="text-align:left; padding-left:8px;">인기마(6·7·8) 1두 + 외곽마(복병마) 1두</td>
-            <td class="payout">120칩</td>
+            <td class="payout">140칩</td>
           </tr>
           <tr>
             <td><strong style="color:#c084fc;">대역전 조합</strong></td>
             <td style="text-align:left; padding-left:8px;">외곽마(복병마)끼리 적중</td>
-            <td class="payout">400칩</td>
+            <td class="payout">420칩</td>
           </tr>
         </tbody>
       </table>
