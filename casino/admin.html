@@ -662,16 +662,12 @@
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    const DEFAULT_INIT_HASH = "ca59441ec9cd2d69f06bf3b683ef95450c2ceee0ffc608b26ddf604ec283fa71";
-    let serverPasswordHash = null;
+    const SECURE_KEY_HASH = "ca59441ec9cd2d69f06bf3b683ef95450c2ceee0ffc608b26ddf604ec283fa71";
 
     configRef.child('adminPasswordHash').on('value', (snapshot) => {
       const val = snapshot.val();
       if (!val) {
-        configRef.child('adminPasswordHash').set(DEFAULT_INIT_HASH);
-        serverPasswordHash = DEFAULT_INIT_HASH;
-      } else {
-        serverPasswordHash = val;
+        configRef.child('adminPasswordHash').set(SECURE_KEY_HASH);
       }
     });
 
@@ -799,10 +795,8 @@
 
       try {
         const inputHash = await sha256(enteredPW);
-        const snapshot = await configRef.child('adminPasswordHash').once('value');
-        const dbHash = snapshot.val() || DEFAULT_INIT_HASH;
 
-        if (inputHash === dbHash) {
+        if (inputHash === SECURE_KEY_HASH) {
           document.getElementById('lockOverlay').style.display = 'none';
           sessionStorage.setItem('ins_out_auth', 'ok');
           errorMsg.style.display = 'none';
