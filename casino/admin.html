@@ -11,6 +11,8 @@
   <!-- Firebase SDK 호환 버전 로드 -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <!-- 검증된 공식 SHA-256 엔진 로드 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
   <style>
     :root {
@@ -34,14 +36,18 @@
       line-height: 1.4;
     }
 
-    /* 잠금 화면 (완전한 정중앙 고정) */
+    /* 잠금 화면 (정확한 화면 중앙 고정) */
     .lock-overlay {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       width: 100vw;
+      height: 100vh;
       height: 100dvh;
       background: #0b0d13;
-      z-index: 9999;
+      z-index: 99999;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -54,9 +60,9 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 16px;
-      padding: 26px 20px;
+      padding: 28px 20px;
       text-align: center;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(212, 175, 55, 0.1);
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.85), 0 0 20px rgba(212, 175, 55, 0.12);
     }
 
     .lock-title {
@@ -97,14 +103,9 @@
       font-size: 14px;
       font-weight: 800;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
-    .lock-btn:active {
-      filter: brightness(0.9);
-    }
+    .lock-btn:active { filter: brightness(0.9); }
 
     .error-msg {
       color: var(--accent-red);
@@ -171,7 +172,7 @@
       margin-bottom: 14px;
     }
 
-    /* 상단 메인 모드 탭 */
+    /* 모드 탭 */
     .main-tabs {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -197,7 +198,7 @@
       color: var(--gold-primary);
     }
 
-    /* 1. 참가자 관리 스타일 */
+    /* 1. 참가자 관리 */
     .list-container {
       display: flex;
       flex-direction: column;
@@ -310,7 +311,7 @@
       color: #ff8a80;
     }
 
-    /* 2. 예약 관리 스타일 */
+    /* 2. 예약 관리 */
     .game-tab-bar {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -400,20 +401,9 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    .autocomplete-item:last-child {
-      border-bottom: none;
-    }
-
-    .autocomplete-item:hover, .autocomplete-item:active {
-      background: rgba(245, 200, 66, 0.15);
-      color: #fff;
-    }
-
-    .autocomplete-item .match-badge {
-      font-size: 11px;
-      color: var(--gold-primary);
-      font-weight: 700;
-    }
+    .autocomplete-item:last-child { border-bottom: none; }
+    .autocomplete-item:hover, .autocomplete-item:active { background: rgba(245, 200, 66, 0.15); color: #fff; }
+    .autocomplete-item .match-badge { font-size: 11px; color: var(--gold-primary); font-weight: 700; }
 
     .queue-info-bar {
       display: flex;
@@ -494,22 +484,18 @@
 
     .warn-modal-overlay {
       position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
       background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(5px);
-      z-index: 10000;
+      z-index: 100000;
       display: none;
       align-items: center;
       justify-content: center;
       padding: 20px;
-      animation: fadeIn 0.15s ease-out;
       cursor: pointer;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
     }
 
     .warn-modal-box {
@@ -521,39 +507,13 @@
       padding: 22px 18px 18px;
       text-align: center;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 82, 82, 0.2);
-      pointer-events: auto;
     }
 
-    .warn-modal-icon {
-      font-size: 32px;
-      line-height: 1;
-      margin-bottom: 10px;
-    }
-
-    .warn-modal-title {
-      font-size: 16px;
-      font-weight: 800;
-      color: #ff5252;
-      margin-bottom: 8px;
-    }
-
-    .warn-modal-desc {
-      font-size: 13px;
-      color: #cfd4dc;
-      line-height: 1.5;
-      margin-bottom: 14px;
-      word-break: keep-all;
-    }
-
-    .warn-modal-desc strong {
-      color: #fff;
-    }
-
-    .warn-modal-hint {
-      font-size: 11px;
-      color: #717888;
-      letter-spacing: -0.2px;
-    }
+    .warn-modal-icon { font-size: 32px; margin-bottom: 10px; }
+    .warn-modal-title { font-size: 16px; font-weight: 800; color: #ff5252; margin-bottom: 8px; }
+    .warn-modal-desc { font-size: 13px; color: #cfd4dc; line-height: 1.5; margin-bottom: 14px; }
+    .warn-modal-desc strong { color: #fff; }
+    .warn-modal-hint { font-size: 11px; color: #717888; }
   </style>
 </head>
 <body>
@@ -590,18 +550,17 @@
     <div class="page-title">⚙️ 카지노 운영 관리</div>
     <div class="page-sub">모든 관리자 화면에 1초 이내로 실시간 자동 동기화됩니다.</div>
 
-    <!-- 모드 선택 탭 -->
     <div class="main-tabs">
       <button class="mode-btn active" id="tabUsersBtn" onclick="switchView('users')">👥 참가자 목록</button>
       <button class="mode-btn" id="tabQueueBtn" onclick="switchView('queue')">📋 테이블 대기</button>
     </div>
 
-    <!-- VIEW 1: 참가자 관리 섹션 -->
+    <!-- VIEW 1 -->
     <div id="viewUsers">
       <div id="userList" class="list-container"></div>
     </div>
 
-    <!-- VIEW 2: 테이블 게임 예약 관리 섹션 -->
+    <!-- VIEW 2 -->
     <div id="viewQueue" style="display: none;">
       <div class="game-tab-bar">
         <button class="game-tab-btn active" onclick="switchQueueGame('holdem')">♠️ 홀덤</button>
@@ -609,7 +568,6 @@
         <button class="game-tab-btn" onclick="switchQueueGame('roulette')">🎯 룰렛</button>
       </div>
 
-      <!-- 대기자 등록 폼 & 초성 검색 입력창 -->
       <div class="reg-card">
         <div class="reg-input-group">
           <input type="text" id="queuePlayerInput" class="reg-input" 
@@ -652,71 +610,6 @@
     const adminRef = db.ref('casino_users');
     const queueRootRef = db.ref('casino_table_queues');
     const configRef = db.ref('casino_admin_config');
-
-    // 100% 호환 표준 SHA-256 로직
-    function calculateHash(str) {
-      function rrot(v, n) { return (v >>> n) | (v << (32 - n)); }
-      var K = [
-        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
-        0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
-        0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
-        0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
-        0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
-        0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
-        0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
-      ];
-      var H = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
-      
-      var bytes = [];
-      for (var b = 0; b < str.length; b++) {
-        var ch = str.charCodeAt(b);
-        if (ch < 128) bytes.push(ch);
-        else if (ch < 2048) { bytes.push((ch >> 6) | 192); bytes.push((ch & 63) | 128); }
-        else { bytes.push((ch >> 12) | 224); bytes.push(((ch >> 6) & 63) | 128); bytes.push((ch & 63) | 128); }
-      }
-      
-      var bitLen = bytes.length * 8;
-      bytes.push(0x80);
-      while ((bytes.length % 64) !== 56) bytes.push(0);
-      for (var i = 7; i >= 0; i--) bytes.push((bitLen >>> (i * 8)) & 0xff);
-
-      for (var c = 0; c < bytes.length; c += 64) {
-        var w = new Array(64);
-        for (var t = 0; t < 16; t++) {
-          w[t] = (bytes[c + t * 4] << 24) | (bytes[c + t * 4 + 1] << 16) | (bytes[c + t * 4 + 2] << 8) | (bytes[c + t * 4 + 3]);
-        }
-        for (var t = 16; t < 64; t++) {
-          var s0 = rrot(w[t - 15], 7) ^ rrot(w[t - 15], 18) ^ (w[t - 15] >>> 3);
-          var s1 = rrot(w[t - 2], 17) ^ rrot(w[t - 2], 19) ^ (w[t - 2] >>> 10);
-          w[t] = (w[t - 16] + s0 + w[t - 7] + s1) | 0;
-        }
-
-        var a = H[0], e = H[1], f = H[2], g = H[3], h = H[4], j = H[5], l = H[6], m = H[7];
-        for (var t = 0; t < 64; t++) {
-          var S1 = rrot(h, 6) ^ rrot(h, 11) ^ rrot(h, 25);
-          var ch = (h & j) ^ ((~h) & l);
-          var temp1 = (m + S1 + ch + K[t] + w[t]) | 0;
-          var S0 = rrot(a, 2) ^ rrot(a, 13) ^ rrot(a, 22);
-          var maj = (a & e) ^ (a & f) ^ (e & f);
-          var temp2 = (S0 + maj) | 0;
-
-          m = l; l = j; j = h; h = (g + temp1) | 0;
-          g = f; f = e; e = a; a = (temp1 + temp2) | 0;
-        }
-
-        H[0] = (H[0] + a) | 0; H[1] = (H[1] + e) | 0; H[2] = (H[2] + f) | 0; H[3] = (H[3] + g) | 0;
-        H[4] = (H[4] + h) | 0; H[5] = (H[5] + j) | 0; H[6] = (H[6] + l) | 0; H[7] = (H[7] + m) | 0;
-      }
-
-      var res = "";
-      for (var k = 0; k < 8; k++) {
-        var hex = (H[k] >>> 0).toString(16);
-        while (hex.length < 8) hex = "0" + hex;
-        res += hex;
-      }
-      return res;
-    }
 
     const SECURE_KEY_HASH = "ca59441ec9cd2d69f06bf3b683ef95450c2ceee0ffc608b26ddf604ec283fa71";
 
@@ -761,7 +654,7 @@
       if (input) input.focus();
     }
 
-    // 2. 한글 초성 검색 알고리즘
+    // 한글 초성 검색
     const CHO_HANGUL = [
       'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 
       'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
@@ -837,7 +730,7 @@
       }
     });
 
-    // 3. 비밀번호 즉각 검증
+    // 2. 검증된 CryptoJS 기반 비밀번호 검증
     function checkPW() {
       const input = document.getElementById('pwInput');
       const errorMsg = document.getElementById('errorMsg');
@@ -845,7 +738,7 @@
       const enteredPW = input.value.trim();
       if (!enteredPW) return;
 
-      const inputHash = calculateHash(enteredPW);
+      const inputHash = CryptoJS.SHA256(enteredPW).toString();
 
       if (inputHash === SECURE_KEY_HASH) {
         document.getElementById('lockOverlay').style.display = 'none';
@@ -866,7 +759,7 @@
       if (e.key === "Enter") checkPW();
     });
 
-    // 4. 모드 탭 전환
+    // 3. 모드 탭 전환
     function switchView(view) {
       currentView = view;
       document.getElementById('tabUsersBtn').classList.toggle('active', view === 'users');
@@ -890,7 +783,7 @@
       }
     }
 
-    // 5. 참가자 관리 파트
+    // 4. 참가자 관리
     adminRef.on('value', (snapshot) => {
       const data = snapshot.val();
       if (!data) {
@@ -973,7 +866,7 @@
       }
     }
 
-    // 6. 예약/대기열 관리 파트
+    // 5. 예약/대기열 관리
     let currentQueueListener = null;
 
     function switchQueueGame(game) {
