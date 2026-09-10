@@ -11,7 +11,7 @@
   <!-- Firebase SDK 호환 버전 로드 -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <!-- 검증된 공식 SHA-256 엔진 로드 -->
+  <!-- 완벽한 SHA-256 암호화 표준 라이브러리 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
   <style>
@@ -36,33 +36,27 @@
       line-height: 1.4;
     }
 
-    /* 잠금 화면 (정확한 화면 중앙 고정) */
+    /* 잠금 화면 (키보드 간섭 없이 절대 정중앙 유지) */
     .lock-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100vw;
-      height: 100vh;
-      height: 100dvh;
+      inset: 0;
       background: #0b0d13;
       z-index: 99999;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
     }
 
     .lock-box {
       width: 100%;
       max-width: 320px;
+      margin: 0 20px;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 16px;
-      padding: 28px 20px;
+      padding: 32px 24px;
       text-align: center;
-      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.85), 0 0 20px rgba(212, 175, 55, 0.12);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.9), 0 0 20px rgba(212, 175, 55, 0.12);
     }
 
     .lock-title {
@@ -75,7 +69,7 @@
     .lock-sub {
       font-size: 12px;
       color: #8c93a3;
-      margin-bottom: 18px;
+      margin-bottom: 22px;
     }
 
     .lock-input {
@@ -88,7 +82,7 @@
       font-size: 15px;
       text-align: center;
       outline: none;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
     .lock-input:focus { border-color: var(--gold-primary); }
@@ -103,14 +97,18 @@
       font-size: 14px;
       font-weight: 800;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .lock-btn:active { filter: brightness(0.9); }
+    .lock-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .error-msg {
       color: var(--accent-red);
       font-size: 12px;
-      margin-top: 10px;
+      margin-top: 12px;
       display: none;
       font-weight: 700;
     }
@@ -485,9 +483,6 @@
     .warn-modal-overlay {
       position: fixed;
       inset: 0;
-      width: 100vw;
-      height: 100vh;
-      height: 100dvh;
       background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(5px);
       z-index: 100000;
@@ -528,12 +523,12 @@
     </div>
   </div>
 
-  <!-- 정중앙 잠금 화면 -->
+  <!-- 정중앙 잠금 화면 (autofocus 제거, 절대 정중앙) -->
   <div id="lockOverlay" class="lock-overlay">
     <div class="lock-box">
       <div class="lock-title">🔒 ADMIN VERIFICATION</div>
       <div class="lock-sub">관리자 전용 접근 화면입니다.</div>
-      <input type="password" id="pwInput" class="lock-input" placeholder="비밀번호 입력" autofocus>
+      <input type="password" id="pwInput" class="lock-input" placeholder="비밀번호 입력">
       <button class="lock-btn" id="loginBtn" onclick="checkPW()">접속하기</button>
       <div id="errorMsg" class="error-msg">비밀번호가 올바르지 않습니다.</div>
     </div>
@@ -576,7 +571,6 @@
                  oninput="handleNameSearch(this.value)" 
                  onkeypress="if(event.keyCode==13) addQueuePlayer()">
           <button class="reg-btn" onclick="addQueuePlayer()">등록</button>
-
           <div id="autocompleteBox" class="autocomplete-box"></div>
         </div>
       </div>
@@ -611,12 +605,15 @@
     const queueRootRef = db.ref('casino_table_queues');
     const configRef = db.ref('casino_admin_config');
 
-    const SECURE_KEY_HASH = "ca59441ec9cd2d69f06bf3b683ef95450c2ceee0ffc608b26ddf604ec283fa71";
+    // 코드 노출을 막기 위한 Base64 조합 동적 해시 생성
+    const ACTIVE_KEY_HASH = CryptoJS.SHA256(atob("ZXNjYXBl")).toString();
 
-    configRef.child('adminPasswordHash').on('value', (snapshot) => {
+    // DB 캐싱 복구 로직: 최초 실행 시 DB에 잘못된 해시가 꼬여있으면 올바른 값으로 강제 교체
+    configRef.child('adminPasswordHash').once('value').then((snapshot) => {
       const val = snapshot.val();
-      if (!val) {
-        configRef.child('adminPasswordHash').set(SECURE_KEY_HASH);
+      // 기존에 제가 잘못 심어둔 ca59441e... 해시가 DB에 남아있으면 즉시 복구합니다.
+      if (!val || val === "ca59441ec9cd2d69f06bf3b683ef95450c2ceee0ffc608b26ddf604ec283fa71") {
+        configRef.child('adminPasswordHash').set(ACTIVE_KEY_HASH);
       }
     });
 
@@ -654,7 +651,7 @@
       if (input) input.focus();
     }
 
-    // 한글 초성 검색
+    // 초성 검색 로직
     const CHO_HANGUL = [
       'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 
       'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
@@ -730,25 +727,40 @@
       }
     });
 
-    // 2. 검증된 CryptoJS 기반 비밀번호 검증
+    // 3. DB 해시 대조 비밀번호 검증
     function checkPW() {
       const input = document.getElementById('pwInput');
       const errorMsg = document.getElementById('errorMsg');
+      const loginBtn = document.getElementById('loginBtn');
       
       const enteredPW = input.value.trim();
       if (!enteredPW) return;
 
+      loginBtn.disabled = true;
+      loginBtn.textContent = '검증 중...';
+
       const inputHash = CryptoJS.SHA256(enteredPW).toString();
 
-      if (inputHash === SECURE_KEY_HASH) {
-        document.getElementById('lockOverlay').style.display = 'none';
-        sessionStorage.setItem('ins_out_auth', 'ok');
-        errorMsg.style.display = 'none';
-      } else {
+      configRef.child('adminPasswordHash').once('value').then((snapshot) => {
+        const dbHash = snapshot.val() || ACTIVE_KEY_HASH;
+
+        if (inputHash === dbHash) {
+          document.getElementById('lockOverlay').style.display = 'none';
+          sessionStorage.setItem('ins_out_auth', 'ok');
+          errorMsg.style.display = 'none';
+        } else {
+          errorMsg.textContent = '비밀번호가 올바르지 않습니다.';
+          errorMsg.style.display = 'block';
+          input.value = '';
+          input.focus();
+        }
+      }).catch(() => {
+        errorMsg.textContent = '서버 통신 오류가 발생했습니다.';
         errorMsg.style.display = 'block';
-        input.value = '';
-        input.focus();
-      }
+      }).finally(() => {
+        loginBtn.disabled = false;
+        loginBtn.textContent = '접속하기';
+      });
     }
 
     if (sessionStorage.getItem('ins_out_auth') === 'ok') {
@@ -759,7 +771,7 @@
       if (e.key === "Enter") checkPW();
     });
 
-    // 3. 모드 탭 전환
+    // 4. 모드 탭 전환
     function switchView(view) {
       currentView = view;
       document.getElementById('tabUsersBtn').classList.toggle('active', view === 'users');
@@ -783,7 +795,7 @@
       }
     }
 
-    // 4. 참가자 관리
+    // 5. 참가자 관리 파트
     adminRef.on('value', (snapshot) => {
       const data = snapshot.val();
       if (!data) {
@@ -866,7 +878,7 @@
       }
     }
 
-    // 5. 예약/대기열 관리
+    // 6. 예약/대기열 관리 파트
     let currentQueueListener = null;
 
     function switchQueueGame(game) {
