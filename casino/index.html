@@ -42,7 +42,8 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 0 16px;
+      /* 좌우 여백을 디바이스 너비에 맞게 유동적으로 넓게 확보 */
+      padding: 0 clamp(20px, 5vw, 32px);
     }
 
     .main-wrapper {
@@ -138,7 +139,7 @@
     main {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: clamp(7px, 2vw, 11px);
+      gap: clamp(7px, 2.5vw, 12px);
       width: 100%;
       flex-shrink: 0;
     }
